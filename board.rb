@@ -40,6 +40,7 @@ class Board
     end
 
     def render
+        puts ""
         puts "  #{(0...@grid.size).to_a.join(" ")}"
         @grid.each_with_index do |l,idx|
             line = []
