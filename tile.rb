@@ -16,4 +16,24 @@ class Tile
         @mine = true
     end
 
+    def reveal
+        @revealed = true
+    end
+
+    def flag
+        @flagged = true
+    end
+
+    def front_end
+        if @revealed == true && @mine == false
+            "_"
+        elsif @revealed == true && @mine == true
+            "M"
+        elsif @revealed == false && @flagged == false
+            "*"
+        elsif @revealed == false && @flagged == true
+            "F"
+        end
+    end
+
 end
