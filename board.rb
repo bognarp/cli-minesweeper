@@ -5,14 +5,19 @@ class Board
 
     def self.generate_grid(size = 9)
         board = Array.new(size) do |col|
-             Array.new(size) { |row| row = Tile.new }
+             Array.new(size) { |row| row = Tile.new() }
         end
     
         self.new(board)
     end
 
+    attr_reader :grid
+
     def initialize(grid)
         @grid = grid
+
+        self.plant_mines # planting random mines
+        self.send_grid # sending the grid to all Tiles
     end
 
     def number_of_mines
@@ -27,10 +32,16 @@ class Board
     end
 
     def plant_mines
-        random_tiles = @grid.flatten.sample(10)
+        random_tiles = @grid.flatten.sample(number_of_mines)
         random_tiles.each do |tile|
             tile_location = @grid.flatten.index(tile)
             @grid.flatten[tile_location].plant_mine
+        end
+    end
+
+    def send_grid
+        @grid.flatten.each do |tile|
+            tile.get_grid(@grid)
         end
     end
 
