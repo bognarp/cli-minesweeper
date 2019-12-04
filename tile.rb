@@ -2,11 +2,16 @@ require_relative 'board'
 
 class Tile
 
-    def initialize
+    def initialize(x,y)
         @mine = false
         @flagged = false
         @revealed = false
+        @coordinate = [x,y]
         @board = nil
+    end
+
+    def inspect
+        {'coord' => @coordinate, 'mine' => @mine, 'flagged' => @flagged, 'revealed' => @revealed }.inspect
     end
 
     def is_mined?

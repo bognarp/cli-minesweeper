@@ -5,13 +5,11 @@ class Board
 
     def self.generate_grid(size = 9)
         board = Array.new(size) do |col|
-             Array.new(size) { |row| row = Tile.new() }
+             Array.new(size) { |row| row = Tile.new(col,row) }
         end
     
         self.new(board)
     end
-
-    attr_reader :grid
 
     def initialize(grid)
         @grid = grid
