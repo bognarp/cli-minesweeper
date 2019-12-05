@@ -14,8 +14,8 @@ class Board
     def initialize(grid)
         @grid = grid
 
-        self.plant_mines # planting random mines
-        self.send_grid # sending the grid to all Tiles
+        self.plant_mines
+        self.send_grid
     end
 
     def number_of_mines

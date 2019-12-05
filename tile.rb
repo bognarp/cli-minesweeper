@@ -34,20 +34,33 @@ class Tile
         @flagged = true
     end
 
-    def neighbors # array of neighbor Tiles
+    def neighbors
+        x,y = @coordinate
+        res = []
+        (x-1..x+1).each do |col|
+            next if col < 0 || col == @board.size
+            (y-1..y+1).each do |row|
+                next if row < 0 || row == @board.size
+                res << @board[col][row]
+            end
+        end
+        res - [self]
     end
 
-    def neighbor_bomb_count # sum of neighbors containing mines
+    def neighbor_bomb_count
+        neighbors.count { |t| t.is_mined? }
     end
 
     def front_end
-        if @revealed == true && @mine == false
+        if @revealed && !@mine && neighbor_bomb_count == 0
             "_"
-        elsif @revealed == true && @mine == true
+        elsif @revealed && !@mine && neighbor_bomb_count != 0
+            neighbor_bomb_count
+        elsif @revealed && @mine
             "M"
-        elsif @revealed == false && @flagged == false
+        elsif !@revealed && !@flagged
             "*"
-        elsif @revealed == false && @flagged == true
+        elsif !@revealed && @flagged
             "F"
         end
     end
