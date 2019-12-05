@@ -16,7 +16,6 @@ class Game
         @board.render
     end
 
-
 end
 
 if $PROGRAM_NAME == __FILE__

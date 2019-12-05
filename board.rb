@@ -1,5 +1,4 @@
 require_relative 'tile'
-require 'byebug'
 
 class Board
 
@@ -50,11 +49,11 @@ class Board
 
     def render
         puts ""
-        puts "  #{(0...@grid.size).to_a.join(" ")}"
+        puts "   #{(0...@grid.size).to_a.join(" ")}"
         @grid.each_with_index do |l,idx|
             line = []
             (0...l.size).each { |i| line << l[i].front_end }
-            puts "#{idx} #{line.join(" ")}"
+            puts "#{idx}  #{line.join(" ")}"
         end
         nil
     end
