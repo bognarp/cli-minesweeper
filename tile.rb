@@ -1,6 +1,9 @@
 require_relative 'board'
+require 'byebug'
 
 class Tile
+
+    attr_reader :revealed
 
     def initialize(x,y)
         @mine = false
@@ -22,8 +25,17 @@ class Tile
         @mine = true
     end
 
-    def reveal
+    def unit_reveal
         @revealed = true
+    end
+
+    def reveal_helper
+        neighbors.select { |n| !n.revealed }
+    end
+    
+    def reveal
+        unit_reveal
+        reveal_helper.each(&:reveal) if neighbor_bomb_count == 0
     end
 
     def get_grid(inf)
