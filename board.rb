@@ -17,6 +17,10 @@ class Board
         self.send_grid
     end
 
+    def grid_size
+        @grid.size
+    end
+
     def number_of_mines
         field = @grid.size ** 2
         if field <= 81
@@ -40,6 +44,10 @@ class Board
         @grid.flatten.each do |tile|
             tile.get_grid(@grid)
         end
+    end
+
+    def solved?
+        @grid.flatten.count(&:revealed) == @grid.flatten.size - @grid.flatten.count(&:is_mined?)
     end
 
     def [](*pos)
