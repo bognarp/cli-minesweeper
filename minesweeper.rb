@@ -78,7 +78,7 @@ class Game
     end
 
     def play
-        until @board.solved? do
+        until @board.solved? || @board.game_over? do
             @board.render
             make_move(get_input)
         end

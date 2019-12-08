@@ -50,6 +50,10 @@ class Board
         @grid.flatten.count(&:revealed) == @grid.flatten.size - @grid.flatten.count(&:is_mined?)
     end
 
+    def game_over?
+        @grid.flatten.any? { |t| t.revealed && t.is_mined? }
+    end
+
     def [](*pos)
         x,y = pos
         @grid[x][y]
