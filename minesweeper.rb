@@ -18,8 +18,23 @@ class Game
         puts ">"
     end
 
-    def bad_input
-        puts "Wrong input: please use this format: r1,2 (r-reveal or f-flag and then the coordinate)"
+    def error_message(id = 'default')
+        
+        case id
+        when 'default'
+            puts "Wrong input: please use this format: r1,2 (r-reveal or f-flag and then the coordinate)"
+            puts "(e.g, 'r0,0' or 'f0,0')"
+        when 'no_char'
+            puts "Wrong input: please use either 'r' or 'f' at the beginning of your input! (e.g, 'r0,0' or 'f0,0')"
+            puts "('r' - means to reveal a position, 'f' - means to flag a position)"
+        when 'no_comma','more_comma'
+            puts "Wrong input: no comma or too many comma in your input! Please use proper format: e.g, 'r0,0' or 'f0,0'"
+        when 'invalid_num'
+            puts "Wrong input: You typed in an invalid number!"
+        when 'invalid_coord'
+            puts "Wrong input: You typed in an invalid coordinate!"
+        end
+    
     end
 
     def parse(input)
@@ -43,19 +58,19 @@ class Game
     def valid_input?(input)
 
         if !['r','R','f','F'].include?(input[0])
-            bad_input
+            error_message('no_char')
             false
         elsif input.count(',') != 1
-            bad_input
+            error_message('no_comma')
             false
         elsif input[1..-1].split(',').length != 2
-            bad_input
+            error_message('more_comma')
             false
         elsif input[1..-1].split(',').any? { |e| !valid_number?(e) }
-            bad_input
+            error_message('invalid_num')
             false
         elsif input[1..-1].split(',').any? { |e| !valid_coordinate?(e) }
-            bad_input
+            error_message('invalid_coord')
             false
         else
             input
@@ -79,6 +94,7 @@ class Game
 
     def play
         until @board.solved? || @board.game_over? do
+            system("clear")
             @board.render
             make_move(get_input)
         end
