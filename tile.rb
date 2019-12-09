@@ -1,4 +1,5 @@
 require_relative 'board'
+require 'colorize'
 
 class Tile
 
@@ -69,20 +70,31 @@ class Tile
     end
 
     def neighbor_bomb_count
-        neighbors.count { |t| t.is_mined? }
+        mines = neighbors.count { |t| t.is_mined? }
+    end
+
+    def bomb_color_switch(num)
+        case num
+        when 1
+            num.to_s.colorize(:white)
+        when 2
+            num.to_s.colorize(:yellow)
+        when 3..8
+            num.to_s.colorize(:light_red)
+        end
     end
 
     def front_end
         if @revealed && !@mine && neighbor_bomb_count == 0
-            "_"
+            "_".colorize(:magenta)
         elsif @revealed && !@mine && neighbor_bomb_count != 0
-            neighbor_bomb_count
+            bomb_color_switch(neighbor_bomb_count)
         elsif @revealed && @mine
-            "M"
+            "M".colorize(:red)
         elsif !@revealed && !@flagged
-            "*"
+            "*".colorize(:blue)
         elsif !@revealed && @flagged
-            "F"
+            "F".colorize(:light_green)
         end
     end
 
