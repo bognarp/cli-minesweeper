@@ -80,7 +80,7 @@ class Tile
         when 2
             num.to_s.colorize(:yellow)
         when 3..8
-            num.to_s.colorize(:light_red)
+            num.to_s.colorize(:red)
         end
     end
 
@@ -90,7 +90,7 @@ class Tile
         elsif @revealed && !@mine && neighbor_bomb_count != 0
             bomb_color_switch(neighbor_bomb_count)
         elsif @revealed && @mine
-            "M".colorize(:red)
+            "M".colorize(:light_red)
         elsif !@revealed && !@flagged
             "*".colorize(:blue)
         elsif !@revealed && @flagged

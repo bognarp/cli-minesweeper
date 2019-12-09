@@ -92,17 +92,17 @@ class Game
     def win_message
         system("clear")
         @board.render
-        puts "_________"
+        puts "========="
         puts "YOU WON!"
-        puts "---------"
+        puts "========="
     end
 
     def lose_message
         system("clear")
         @board.render
-        puts "__________"
-        puts "GAME OVER"
-        puts "----------"
+        puts "=========="
+        puts "GAME OVER!"
+        puts "=========="
     end
 
     def play
