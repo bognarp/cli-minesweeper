@@ -19,7 +19,6 @@ class Game
     end
 
     def error_message(id = 'default')
-        
         case id
         when 'default'
             puts "Wrong input: please use this format: r1,2 (r-reveal or f-flag and then the coordinate)"
@@ -34,7 +33,6 @@ class Game
         when 'invalid_coord'
             puts "Wrong input: You typed in an invalid coordinate!"
         end
-    
     end
 
     def parse(input)
@@ -56,7 +54,6 @@ class Game
     end
 
     def valid_input?(input)
-
         if !['r','R','f','F'].include?(input[0])
             error_message('no_char')
             false
@@ -85,11 +82,27 @@ class Game
 
     def make_move(input)
         x,y = input[1..-1]
-        if input.first == 'r'
+        if input.first == 'r' || input.first == 'R'
             @board[x,y].reveal
         else
             @board[x,y].flag
         end
+    end
+
+    def win_message
+        system("clear")
+        @board.render
+        puts "_________"
+        puts "YOU WON!"
+        puts "---------"
+    end
+
+    def lose_message
+        system("clear")
+        @board.render
+        puts "__________"
+        puts "GAME OVER"
+        puts "----------"
     end
 
     def play
@@ -97,6 +110,8 @@ class Game
             system("clear")
             @board.render
             make_move(get_input)
+            win_message if @board.solved?
+            lose_message if @board.game_over?
         end
     end
 
