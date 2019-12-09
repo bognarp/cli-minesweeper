@@ -25,7 +25,17 @@ class Tile
     end
 
     def unit_reveal
-        @revealed = true
+        if @flagged
+            flagged_message
+        else
+            @revealed = true
+        end
+    end
+
+    def flagged_message
+        puts ""
+        puts "You can't reveal a flagged position, please unflag it first (use f'coordinate')"
+        sleep(3)
     end
 
     def reveal_helper
@@ -42,7 +52,7 @@ class Tile
     end
 
     def flag
-        @flagged = true
+        @flagged ? @flagged = false : @flagged = true
     end
 
     def neighbors
