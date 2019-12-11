@@ -1,5 +1,6 @@
 require_relative 'tile'
 require_relative 'board'
+require 'yaml'
 
 class Game
 
@@ -12,10 +13,31 @@ class Game
         @board = board
     end
 
+    def prompt_file_name
+        puts "Enter a name for your file:"
+        file_name = STDIN.gets.chomp
+    end
+
+    def save_game
+        save_board = @board.to_yaml
+        file_name = prompt_file_name
+        File.open("./save_game/#{file_name}.txt", "w") { |f| f.write(save_board) }
+    end
+
+    def load_game
+        file_name = prompt_file_name
+        File.open("./save_game/#{file_name}.txt", "r") { |f| @board = YAML::load(f.read) }
+    end
+
     def prompt_input
-        puts ""
-        puts "Make your move! (e.g., type 'r0,0' to reveal or 'f0,0' if you want to flag a position)"
-        puts ">"
+        puts "==============="
+        puts "Make your move!"
+        puts "---------------"
+        puts "Type 'r<coordinate>' to reveal a position (e.g., 'r1,1')"
+        puts "Type 'f<coordinate>' to flag/unflag a position (e.g., 'f1,1')"
+        puts "Type 's' to save game"
+        puts "Type 'l' to load game"
+        puts "==============="
     end
 
     def error_message(id = 'default')
@@ -36,6 +58,7 @@ class Game
     end
 
     def parse(input)
+        return input if input.length == 1 && ['s','l'].include?(input)
         res = []
         arr = input.split(',')
         res << arr.first[0]
@@ -54,6 +77,7 @@ class Game
     end
 
     def valid_input?(input)
+        return input if input.length == 1 && ['s','l'].include?(input)
         if !['r','R','f','F'].include?(input[0])
             error_message('no_char')
             false
@@ -81,11 +105,18 @@ class Game
     end
 
     def make_move(input)
-        x,y = input[1..-1]
-        if input.first == 'r' || input.first == 'R'
-            @board[x,y].reveal
+        case input
+        when 's'
+            save_game
+        when 'l'
+            load_game
         else
-            @board[x,y].flag
+            x,y = input[1..-1]
+            if input.first == 'r' || input.first == 'R'
+                @board[x,y].reveal
+            else
+                @board[x,y].flag
+            end
         end
     end
 
