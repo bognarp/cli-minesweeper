@@ -57,7 +57,7 @@ class Tile
 
     def flagged_message
         puts ""
-        puts "You can't reveal a flagged position, please unflag it first (use f<coordinate>)"
+        puts "You can't reveal a flagged position, please unflag it first (press 'F')"
         sleep(3)
     end
 
