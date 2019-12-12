@@ -2,6 +2,7 @@ require_relative 'tile'
 require_relative 'board'
 require 'yaml'
 require 'remedy'
+require 'time'
 include Remedy
 
 class Game
@@ -16,6 +17,7 @@ class Game
     def initialize(board)
         @board = board
         @selected_pos = [0,0]
+        @time = nil
     end
 
     def prompt_file_name
@@ -23,7 +25,12 @@ class Game
         file_name = STDIN.gets.chomp
     end
 
+    def save_game_time
+        @board.set_game_time(time_tracker(@time))
+    end
+
     def save_game
+        save_game_time
         save_board = @board.to_yaml
         file_name = prompt_file_name
         File.open("./save_game/#{file_name}.txt", "w") { |f| f.write(save_board) }
@@ -34,30 +41,35 @@ class Game
         File.open("./save_game/#{file_name}.txt", "r") { |f| @board = YAML::load(f.read) }
     end
 
-    def prompt_input
-        puts "==============="
-        puts "Use the arrow keys and press 'R' to reveal or 'F' to flag a position"
-        puts "---------------"
-        puts "Press 'S' to save game"
-        puts "Press 'L' to load game"
-        puts "Press 'Q' to quit game"
-        puts "==============="
+    def menu
+        puts "========MENU==========="
+        puts "Press 'S' to Save game"
+        puts "Press 'L' to Load game"
+        puts "Press 'Q' to Quit game"
+        puts "======================="
+    end
+
+    def directions
+        puts "======================="
+        puts "Use the arrow keys to select" 
+        puts "Press 'R' to Reveal" 
+        puts "Press 'F' to Flag"
     end
     
     def win_message
         system("clear")
         @board.render
-        puts "========="
-        puts "YOU WON!"
-        puts "========="
+        puts "======================="
+        puts "YOU WON! Your time: #{(time_tracker(@time) + @board.game_time).round(2)}s"
+        puts "======================="
     end
 
     def lose_message
         system("clear")
         @board.render
-        puts "=========="
-        puts "GAME OVER!"
-        puts "=========="
+        puts "======================="
+        puts "GAME OVER! Your time: #{(time_tracker(@time) + @board.game_time).round(2)}s"
+        puts "======================="
     end
 
     def one_step(num,direction)
@@ -77,7 +89,7 @@ class Game
         end
     end
 
-    def filter_moves(move)
+    def parse_moves(move)
         x,y = @selected_pos
         case move.to_s
         when "s"
@@ -104,22 +116,31 @@ class Game
     def make_move
         user_input = Interaction.new
         user_input.loop do |key|
-            filter_moves(key)
+            parse_moves(key)
             @board.select_tile(@selected_pos)
             break
         end
     end
 
+    def game_finished?
+        @board.solved? || @board.game_over? || @board.quit
+    end
+
+    def time_tracker(start_time)
+        Time.now - start_time
+    end
+
     def play
-        until @board.solved? || @board.game_over? || @board.quit do
+        @time = Time.now
+        until game_finished? do
             system("clear")
-            puts selected_pos.to_s
+            menu
             @board.render
-            prompt_input
+            directions
             make_move
-            win_message if @board.solved?
-            lose_message if @board.game_over?
         end
+        win_message if @board.solved?
+        lose_message if @board.game_over?
     end
 
 end
