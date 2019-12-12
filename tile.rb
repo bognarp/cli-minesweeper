@@ -3,18 +3,19 @@ require 'colorize'
 
 class Tile
 
-    attr_reader :revealed
+    attr_reader :revealed, :selected
 
     def initialize(x,y)
         @mine = false
         @flagged = false
         @revealed = false
+        @selected = false
         @coordinate = [x,y]
         @board = nil
     end
 
     def inspect
-        {'coord' => @coordinate, 'mine' => @mine, 'flagged' => @flagged, 'revealed' => @revealed }.inspect
+        {'coord' => @coordinate, 'selected' => @selected, 'mine' => @mine, 'flagged' => @flagged, 'revealed' => @revealed }.inspect
     end
 
     def is_mined?
@@ -25,18 +26,16 @@ class Tile
         @mine = true
     end
 
+    def select_t
+        @selected ? @selected = false : @selected = true
+    end
+
     def unit_reveal
         if @flagged
             flagged_message
         else
             @revealed = true
         end
-    end
-
-    def flagged_message
-        puts ""
-        puts "You can't reveal a flagged position, please unflag it first (use f'coordinate')"
-        sleep(3)
     end
 
     def reveal_helper
@@ -54,6 +53,12 @@ class Tile
 
     def flag
         @flagged ? @flagged = false : @flagged = true
+    end
+
+    def flagged_message
+        puts ""
+        puts "You can't reveal a flagged position, please unflag it first (use f<coordinate>)"
+        sleep(3)
     end
 
     def neighbors
@@ -84,17 +89,21 @@ class Tile
         end
     end
 
+    def selected_helper(outp)
+        @selected ? outp.on_white : outp
+    end
+
     def front_end
         if @revealed && !@mine && neighbor_bomb_count == 0
-            "_".colorize(:magenta)
+            selected_helper("_".colorize(:magenta))
         elsif @revealed && !@mine && neighbor_bomb_count != 0
-            bomb_color_switch(neighbor_bomb_count)
+            selected_helper(bomb_color_switch(neighbor_bomb_count))
         elsif @revealed && @mine
-            "M".colorize(:light_red)
+            selected_helper("M".colorize(:light_red))
         elsif !@revealed && !@flagged
-            "*".colorize(:blue)
+            selected_helper("*".colorize(:blue))
         elsif !@revealed && @flagged
-            "F".colorize(:light_green)
+            selected_helper("F".colorize(:light_green))
         end
     end
 

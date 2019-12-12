@@ -1,16 +1,21 @@
 require_relative 'tile'
 require_relative 'board'
 require 'yaml'
+require 'remedy'
+include Remedy
 
 class Game
-
+    
     def self.new_game(size = 9)
         board = Board.generate_grid(size)
         self.new(board)
     end
 
+    attr_reader :selected_pos
+
     def initialize(board)
         @board = board
+        @selected_pos = [0,0]
     end
 
     def prompt_file_name
@@ -31,95 +36,14 @@ class Game
 
     def prompt_input
         puts "==============="
-        puts "Make your move!"
+        puts "Use the arrow keys and press 'R' to reveal or 'F' to flag a position"
         puts "---------------"
-        puts "Type 'r<coordinate>' to reveal a position (e.g., 'r1,1')"
-        puts "Type 'f<coordinate>' to flag/unflag a position (e.g., 'f1,1')"
-        puts "Type 's' to save game"
-        puts "Type 'l' to load game"
+        puts "Press 'S' to save game"
+        puts "Press 'L' to load game"
+        puts "Press 'Q' to quit game"
         puts "==============="
     end
-
-    def error_message(id = 'default')
-        case id
-        when 'default'
-            puts "Wrong input: please use this format: r1,2 (r-reveal or f-flag and then the coordinate)"
-            puts "(e.g, 'r0,0' or 'f0,0')"
-        when 'no_char'
-            puts "Wrong input: please use either 'r' or 'f' at the beginning of your input! (e.g, 'r0,0' or 'f0,0')"
-            puts "('r' - means to reveal a position, 'f' - means to flag a position)"
-        when 'no_comma','more_comma'
-            puts "Wrong input: no comma or too many comma in your input! Please use proper format: e.g, 'r0,0' or 'f0,0'"
-        when 'invalid_num'
-            puts "Wrong input: You typed in an invalid number!"
-        when 'invalid_coord'
-            puts "Wrong input: You typed in an invalid coordinate!"
-        end
-    end
-
-    def parse(input)
-        return input if input.length == 1 && ['s','l'].include?(input)
-        res = []
-        arr = input.split(',')
-        res << arr.first[0]
-        res << Integer(arr.first.delete_prefix(arr.first[0]))
-        res << Integer(arr[1])
-    end
-
-    def valid_number?(elem)
-        return false if elem.empty?
-        nums = "0123456789"
-        elem.chars.all? { |c| nums.include?(c) }
-    end
-
-    def valid_coordinate?(elem)
-        elem.to_i.between?(0,@board.grid_size-1)
-    end
-
-    def valid_input?(input)
-        return input if input.length == 1 && ['s','l'].include?(input)
-        if !['r','R','f','F'].include?(input[0])
-            error_message('no_char')
-            false
-        elsif input.count(',') != 1
-            error_message('no_comma')
-            false
-        elsif input[1..-1].split(',').length != 2
-            error_message('more_comma')
-            false
-        elsif input[1..-1].split(',').any? { |e| !valid_number?(e) }
-            error_message('invalid_num')
-            false
-        elsif input[1..-1].split(',').any? { |e| !valid_coordinate?(e) }
-            error_message('invalid_coord')
-            false
-        else
-            input
-        end
-    end
-
-    def get_input
-        prompt_input
-        user_input = STDIN.gets.chomp
-        valid_input?(user_input) ? parse(user_input) : get_input
-    end
-
-    def make_move(input)
-        case input
-        when 's'
-            save_game
-        when 'l'
-            load_game
-        else
-            x,y = input[1..-1]
-            if input.first == 'r' || input.first == 'R'
-                @board[x,y].reveal
-            else
-                @board[x,y].flag
-            end
-        end
-    end
-
+    
     def win_message
         system("clear")
         @board.render
@@ -136,11 +60,63 @@ class Game
         puts "=========="
     end
 
+    def one_step(num,direction)
+        case direction
+        when '-'
+            if num == 0
+                @board.grid_size-1
+            else
+                num-1
+            end
+        when '+'
+            if num == @board.grid_size-1
+                0
+            else
+                num+1
+            end
+        end
+    end
+
+    def filter_moves(move)
+        x,y = @selected_pos
+        case move.to_s
+        when "s"
+            save_game
+        when "l"
+            load_game
+        when "up"
+            @selected_pos = [one_step(x,'-'),y]
+        when "down"
+            @selected_pos = [one_step(x,'+'),y]
+        when "right"
+            @selected_pos = [x,one_step(y,'+')]
+        when "left"
+            @selected_pos = [x,one_step(y,'-')]
+        when 'r'
+            @board[x,y].reveal
+        when 'f'
+            @board[x,y].flag
+        when 'q'
+            @board.quit!
+        end
+    end
+
+    def make_move
+        user_input = Interaction.new
+        user_input.loop do |key|
+            filter_moves(key)
+            @board.select_tile(@selected_pos)
+            break
+        end
+    end
+
     def play
-        until @board.solved? || @board.game_over? do
+        until @board.solved? || @board.game_over? || @board.quit do
             system("clear")
+            puts selected_pos.to_s
             @board.render
-            make_move(get_input)
+            prompt_input
+            make_move
             win_message if @board.solved?
             lose_message if @board.game_over?
         end

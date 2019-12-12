@@ -10,10 +10,14 @@ class Board
         self.new(board)
     end
 
+    attr_reader :quit
+
     def initialize(grid)
         @grid = grid
+        @quit = false
 
         self.plant_mines
+        @grid[0][0].select_t
         self.send_grid
     end
 
@@ -54,9 +58,20 @@ class Board
         @grid.flatten.any? { |t| t.revealed && t.is_mined? }
     end
 
+    def quit!
+        @quit = true
+    end
+
     def [](*pos)
         x,y = pos
         @grid[x][y]
+    end
+
+    def select_tile(coord)
+        x,y = coord
+        @grid[x][y].select_t
+        deselect = (@grid.flatten - [@grid[x][y]]).select(&:selected)
+        deselect.each(&:select_t)
     end
 
     def render
