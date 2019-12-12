@@ -1,5 +1,4 @@
 require_relative 'tile'
-require 'byebug'
 
 class Board
 
