@@ -10,11 +10,12 @@ class Board
         self.new(board)
     end
 
-    attr_reader :quit
+    attr_reader :quit, :game_time
 
     def initialize(grid)
         @grid = grid
         @quit = false
+        @game_time = 0
 
         self.plant_mines
         @grid[0][0].select_t
@@ -23,6 +24,10 @@ class Board
 
     def grid_size
         @grid.size
+    end
+
+    def set_game_time(time)
+        @game_time = time
     end
 
     def number_of_mines
@@ -82,7 +87,7 @@ class Board
             (0...l.size).each { |i| line << l[i].front_end }
             puts "#{idx}  #{line.join(" ")}"
         end
-        nil
+        puts ""
     end
 
 end
