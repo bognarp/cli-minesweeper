@@ -12,8 +12,6 @@ class Game
         self.new(board)
     end
 
-    attr_reader :selected_pos
-
     def initialize(board)
         @board = board
         @selected_pos = [0,0]
