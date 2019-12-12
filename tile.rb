@@ -38,12 +38,6 @@ class Tile
         end
     end
 
-    def flagged_message
-        puts ""
-        puts "You can't reveal a flagged position, please unflag it first (use f<coordinate>)"
-        sleep(3)
-    end
-
     def reveal_helper
         neighbors.select { |n| !n.revealed }
     end
@@ -59,6 +53,12 @@ class Tile
 
     def flag
         @flagged ? @flagged = false : @flagged = true
+    end
+
+    def flagged_message
+        puts ""
+        puts "You can't reveal a flagged position, please unflag it first (use f<coordinate>)"
+        sleep(3)
     end
 
     def neighbors
@@ -89,21 +89,21 @@ class Tile
         end
     end
 
-    def front_end(selected = @selected)
-        if @revealed && !@mine && neighbor_bomb_count == 0 && !@selected
-            "_".colorize(:magenta)
-        elsif @revealed && !@mine && neighbor_bomb_count == 0 && @selected
-            "_".colorize(:magenta).on_white
+    def selected_helper(outp)
+        @selected ? outp.on_white : outp
+    end
+
+    def front_end
+        if @revealed && !@mine && neighbor_bomb_count == 0
+            selected_helper("_".colorize(:magenta))
         elsif @revealed && !@mine && neighbor_bomb_count != 0
-            bomb_color_switch(neighbor_bomb_count)
+            selected_helper(bomb_color_switch(neighbor_bomb_count))
         elsif @revealed && @mine
-            "M".colorize(:light_red)
-        elsif !@revealed && !@flagged && !@selected
-            "*".colorize(:blue)
-        elsif !@revealed && !@flagged && @selected
-            "*".colorize(:blue).on_white
+            selected_helper("M".colorize(:light_red))
+        elsif !@revealed && !@flagged
+            selected_helper("*".colorize(:blue))
         elsif !@revealed && @flagged
-            "F".colorize(:light_green)
+            selected_helper("F".colorize(:light_green))
         end
     end
 
